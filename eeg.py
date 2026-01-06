@@ -1,3 +1,5 @@
+import argparse
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 plt.rc("axes.spines", top=False, right=False)
@@ -56,6 +58,7 @@ def plot_decoding(data):
     plt.legend()
     plt.xlabel('Time (s)')
     plt.ylabel('Decoding accuracy - chance (%)')
+    plt.show()
 
 
 def plot_tgm(data):
@@ -89,6 +92,7 @@ def plot_tgm(data):
         ax.set_xlabel('Testing time (s)')
     fig.colorbar(im, ax=axf, shrink=.5, orientation='horizontal', 
                     ticks=cticks, label='Decoding accuracy - chance (%)')
+    plt.show()
 
 
 def plot_asymmetry(data):
@@ -134,13 +138,22 @@ def plot_asymmetry(data):
     plt.legend()
     plt.xlabel('Time (s)')
     plt.ylabel('Decoding accuracy - chance (%)')
+    plt.show()
 
 
 
 if __name__=='__main__':
 
-    bids_root = '/path/to/dataset'
-    subs = [f'sub-{i:02d}' for i in range(1,35)]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('bids_root', help='Path to BIDS dataset root')
+    args = parser.parse_args()
+
+    bids_root = args.bids_root
+
+    # infer subjects from derivatives/decoding
+    dec_dir = os.path.join(bids_root, 'derivatives', 'decoding')
+    subs = sorted(d for d in os.listdir(dec_dir) if d.startswith('sub-'))
+
     data = load_decoding(bids_root, subs)
 
     plot_decoding(data)
