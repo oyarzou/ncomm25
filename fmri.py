@@ -1,3 +1,5 @@
+import argparse
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 plt.rc('axes.spines', top=False, right=False)
@@ -56,6 +58,7 @@ def plot_decoding_roi(data):
         join=False, dodge=.8 - .8 / 4,
         markers='o', scale=.75, errorbar='ci'
     )
+    plt.show()
 
 
 def load_searchlight(bids_root, subs, task='rcor'):
@@ -127,6 +130,7 @@ def plot_decoding_sl(data, ref_img, conditions):
             ax.set_yticks([])
             for s in ["left", "right", "bottom", "top"]:
                 ax.spines[s].set_visible(False)
+    plt.show()
 
 
 def plot_rsa(rdms):
@@ -240,12 +244,20 @@ def plot_rsa(rdms):
     # bottom right: within challenge - between
     plot_matrix(axs[2,1], avg_w[0] - avg_b, tri='upper')
     style_matrix(axs[2,1], 'challenge minus between')
+    plt.show()
 
 
 if __name__=='__main__':
 
-    bids_root = '/path/to/dataset'
-    subs = [f'sub-{i:02d}' for i in range(1,31)]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('bids_root', help='Path to BIDS dataset root')
+    args = parser.parse_args()
+
+    bids_root = args.bids_root
+
+    # infer subjects from derivatives/decoding-rois
+    dec_dir = os.path.join(bids_root, 'derivatives', 'decoding-rois')
+    subs = sorted(d for d in os.listdir(dec_dir) if d.startswith('sub-'))
 
     dec_roi = load_rois(bids_root, subs, result='decoding-rois')
     plot_decoding_roi(dec_roi)
